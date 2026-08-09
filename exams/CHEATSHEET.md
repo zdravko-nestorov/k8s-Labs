@@ -128,9 +128,15 @@ kubectl set selector service <name> 'key=value'
 
 # anything kubectl set does not cover                                     [E02 t2]
 kubectl patch deployment <name> -n <ns> --patch '<yaml or json>'
+
+# immutable field, so delete and create in one command                    [E03 t1]
+kubectl replace --force -f pod.yaml
 ```
 
 `kubectl set` works on objects with a **pod template**, so Deployments yes, bare Pods no.
+
+`kubectl get pod -o yaml` output is noisy but the API accepts it. Edit the `spec` and ignore the
+rest. `kubectl edit` shows a cleaner manifest to copy from.
 
 ## Security context
 
@@ -167,6 +173,52 @@ kubectl run web1 -n ca100 --image=nginx -l env=prod --port=80 --dry-run=client -
       limits:
         memory: "200Mi"
 ```
+
+## Multi-container Pods
+
+A running Pod cannot gain a container. Dump, edit, recreate.
+
+```bash
+# dump, edit, recreate in one command instead of delete then create        [E03 t1]
+kubectl -n <ns> get pod <pod> -o yaml > pod.yaml
+kubectl -n <ns> replace --force -f pod.yaml
+
+# read one container's logs
+kubectl logs -n <ns> <pod> -c <container>
+```
+
+Share files with an `emptyDir` mounted in both containers:
+
+```yaml
+spec:
+  containers:
+  - name: main
+    volumeMounts:
+    - name: logs
+      mountPath: /var/log
+  - name: second
+    image: busybox
+    args: [/bin/sh, -c, 'tail -n+1 -f /var/log/random.log']    # -n+1 replays from line 1
+    volumeMounts:
+    - name: logs
+      mountPath: /var/log
+      readOnly: true                                            # readOnly is a mount field
+  volumes:
+  - name: logs
+    emptyDir: {}
+```
+
+Networking inside a Pod: one network namespace, one IP. From container to container the host is
+`localhost`, and these all work too.
+
+```text
+127.0.0.1
+<pod-name>                                          # Kubernetes writes it into /etc/hosts
+<pod-ip>                                            # 10.0.0.11
+<pod-ip-with-dashes>.<ns>.pod.cluster.local         # 10-0-0-11.app1.pod.cluster.local
+```
+
+Two containers in one Pod cannot bind the same port.
 
 ## Output and JSONPath
 
@@ -212,9 +264,10 @@ Generate, edit the one field, apply.
 | `resources.requests`, `resources.limits` | container | E02 t4 |
 | `securityContext.fsGroup` | `spec` | E02 t3 |
 | `securityContext.runAsUser` | `spec` or container | E02 t3 |
-| `volumes`, `volumeMounts` | `spec` and container | E02 t1 |
+| `volumes`, `volumeMounts` | `spec` and container | E02 t1, E03 t1 |
 | `envFrom` | container | E02 t5 |
-| a second container | `spec.containers` | E02 t3 |
+| a second container | `spec.containers` | E02 t3, E03 t1 |
+| `lifecycle.postStart` | container | E03 t2 |
 
 Confirm nesting with `kubectl explain pod.spec` before editing.
 
@@ -224,6 +277,7 @@ Confirm nesting with `kubectl explain pod.spec` before editing.
 kubectl describe pod -n <ns> <pod>       # labels, ports, requests, limits, events
 kubectl exec -n <ns> <pod> -c <c> -- id  # user and group IDs
 kubectl logs -n <ns> <pod>               # environment variables the command printed
+kubectl logs -n <ns> <pod> -c <c>        # one container of a multi-container Pod
 kubectl get pods -n <ns>                 # it actually started
 ```
 
@@ -243,3 +297,4 @@ Check inside the container, not just the manifest. The API accepts fields that d
 |------|--------|
 | E01 | [Core Concepts](01-core-concepts.md) |
 | E02 | [Configuration](02-configuration.md) |
+| E03 | [Multi-Container Pods](03-multi-container-pods.md) |
