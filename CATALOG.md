@@ -41,6 +41,7 @@ Lab numbers follow the order the labs were added. Multi-step labs keep all steps
 | 01 | Core Concepts | [exams/01-core-concepts.md](exams/01-core-concepts.md) | 6 | pods, namespaces, labels, restartPolicy, jsonpath, dry-run, kubectl-run, kubectl-label, kubectl-edit, kubectl-explain, terminationGracePeriodSeconds, env |
 | 02 | Configuration | [exams/02-configuration.md](exams/02-configuration.md) | 5 | secrets, configmaps, volumes, envFrom, serviceaccount, securityContext, runAsUser, fsGroup, resources, requests, limits, labels, multi-container, kubectl-create, kubectl-set, kubectl-patch, dry-run |
 | 03 | Multi-Container Pods | [exams/03-multi-container-pods.md](exams/03-multi-container-pods.md) | 3 | multi-container, sidecar, emptyDir, volumes, volumeMounts, readOnly, logging, tail, pod-networking, localhost, dns, configmap, configMapKeyRef, postStart, lifecycle, kubectl-replace, kubectl-logs |
+| 04 | Observability | [exams/04-observability.md](exams/04-observability.md) | 5 | probes, livenessProbe, readinessProbe, httpGet, troubleshooting, endpoints, services, nodeport, kubectl-logs, label-selector, kubectl-exec, kubectl-cp, kubectl-top, metrics-server, kubectl-edit, kubectl-describe |
 
 Fastest commands across all exams: [exams/CHEATSHEET.md](exams/CHEATSHEET.md). Solutions inside exam files are collapsed, so a file can be re-attempted without spoilers.
 
@@ -56,15 +57,15 @@ Lab numbers unless marked with E, which means an exam.
 | Deployments, rollouts, rollbacks | 00, 03, 14, 16 |
 | Deployment strategies (canary, blue/green) | 16 |
 | StatefulSets and headless Services | 13 |
-| Services and exposure | 00, 03, 05, 13, 14, 15, 16 |
+| Services and exposure | 00, 03, 05, 13, 14, 15, 16, E04 |
 | Ingress and HTTP routing | 15 |
 | Jobs and CronJobs | 04 |
-| Logging | 00, 05, 14, E03 |
+| Logging | 00, 05, 14, E03, E04 |
 | Multi-container and sidecars | 00, 05, 12, 13, 14, E02, E03 |
 | Pod networking (localhost, Pod DNS) | E03 |
 | Init containers | 00, 13 |
-| Probes | 00, 06, 13, 16 |
-| Monitoring and metrics-server | 00, 06, 07, 13 |
+| Probes | 00, 06, 13, 16, E04 |
+| Monitoring and metrics-server | 00, 06, 07, 13, E04 |
 | Resources, requests, limits | 00, 07, 12, E02 |
 | Security contexts | 08, E02 |
 | Persistent volumes and PVCs | 00, 09, 13 |
@@ -77,10 +78,10 @@ Lab numbers unless marked with E, which means an exam.
 | CRDs and custom resources | 17 |
 | API discovery (api-resources, explain) | 01, 17, E01, E02 |
 | Imperative kubectl and dry-run | E01, E02 |
-| Updating live objects (set, patch, edit, replace) | 03, 16, 17, E01, E02, E03 |
+| Updating live objects (set, patch, edit, replace) | 03, 16, 17, E01, E02, E03, E04 |
 | JSONPath and output formats | 10, 12, 13, 14, 15, 16, 17, E01 |
 | Helm charts, templates, values | 14 |
-| Troubleshooting (describe, events, image pull) | 06, 14, 15 |
+| Troubleshooting (describe, events, endpoints) | 06, 14, 15, E04 |
 | Cluster operations (drain, cordon, scale) | 13 |
 | Kubernetes Dashboard and port-forward | 13, 17 |
 | Docker image build | 14, 19 |
