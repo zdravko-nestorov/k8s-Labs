@@ -220,6 +220,88 @@ Networking inside a Pod: one network namespace, one IP. From container to contai
 
 Two containers in one Pod cannot bind the same port.
 
+## Probes
+
+No imperative flag. Generate, then add the block to the container.
+
+```yaml
+    livenessProbe:            # fails -> container restarts
+      httpGet:
+        path: /
+        port: 80
+      initialDelaySeconds: 10 # wait before the first check, default 0
+      periodSeconds: 5        # gap between checks, default 10
+    readinessProbe:           # fails -> Pod drops out of the Service endpoints
+      httpGet:
+        port: 80
+```
+
+```bash
+# read the probe back as one line                                         [E04 t1]
+kubectl describe pod -n <ns> <pod>
+# Liveness: http-get http://:80/ delay=10s timeout=1s period=5s #success=1 #failure=3
+```
+
+## Troubleshooting a dead Service
+
+Work in this order. Stop as soon as something looks wrong.
+
+```bash
+kubectl -n <ns> get endpoints                          # empty means no READY Pods  [E04 t2]
+kubectl -n <ns> get service -o wide                    # check the selector
+kubectl -n <ns> get pods --selector app=<label>        # do Pods match it
+kubectl -n <ns> describe pods --selector app=<label>   # Events name the cause
+kubectl -n <ns> edit deployment <name>                 # fix it in place
+```
+
+A Service never routes to a Pod that is not Ready, so a failing readiness probe empties the
+endpoints list. A probe port that does not match the container port is the classic cause.
+
+```bash
+# test from inside the cluster using Service DNS, no node IP lookup needed
+kubectl -n <ns> exec -it <any-pod> -- curl <service>:80
+# from outside, for a NodePort Service
+kubectl get nodes -o wide && curl <NodeIP>:<NodePort>
+```
+
+## Logs across many Pods
+
+```bash
+kubectl logs -n <ns> -l app=prod                # merges every matching Pod  [E04 t3]
+kubectl logs -n <ns> -l app=prod --prefix       # tag each line with its Pod
+kubectl logs -n <ns> -l app=prod | wc -l        # count rows, no loop, no temp file
+kubectl logs -n <ns> <pod> -c <container>       # one container
+kubectl logs -n <ns> <pod> --previous           # the crashed instance
+```
+
+`--max-log-requests` defaults to 5 and caps concurrent streams when following by selector.
+
+Never loop over Pods for this. `for x in $(kubectl logs ...)` splits on **whitespace**, not
+newlines, so multi-word lines get counted more than once.
+
+## Get a file out of a container
+
+```bash
+kubectl exec -n <ns> <pod> -- cat /path/file > local.txt   # text, no dependencies  [E04 t4]
+kubectl cp <ns>/<pod>:path/file local.txt                  # binaries and directories
+```
+
+`kubectl cp` runs `tar` **inside** the container. Slim images often have no `tar`, and it strips a
+leading `/` from the source path with a warning.
+
+## Resource usage
+
+```bash
+kubectl top pods -n <ns> --sort-by=cpu --no-headers | head -n1 | awk '{print $1}'   # [E04 t5]
+kubectl top pods -n <ns> --sort-by=memory
+kubectl top nodes
+```
+
+`--sort-by` takes only `cpu` or `memory`, and sorts descending. Needs metrics-server.
+
+Prefer `awk '{print $1}'` over `cut -d" " -f1`. Column widths vary and awk treats a run of spaces
+as one separator.
+
 ## Output and JSONPath
 
 ```bash
@@ -268,6 +350,7 @@ Generate, edit the one field, apply.
 | `envFrom` | container | E02 t5 |
 | a second container | `spec.containers` | E02 t3, E03 t1 |
 | `lifecycle.postStart` | container | E03 t2 |
+| `livenessProbe`, `readinessProbe` | container | E04 t1 |
 
 Confirm nesting with `kubectl explain pod.spec` before editing.
 
@@ -298,3 +381,4 @@ Check inside the container, not just the manifest. The API accepts fields that d
 | E01 | [Core Concepts](01-core-concepts.md) |
 | E02 | [Configuration](02-configuration.md) |
 | E03 | [Multi-Container Pods](03-multi-container-pods.md) |
+| E04 | [Observability](04-observability.md) |
