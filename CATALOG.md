@@ -23,34 +23,44 @@ Numbers follow the order the labs were added. Multi-step labs keep all steps in 
 | 12 | Utilizing Ephemeral Volume Types | [12-ephemeral-volume-types.md](12-ephemeral-volume-types.md) | 1 | emptyDir, ephemeral-storage, volumes, volumeMounts, sizeLimit, multi-container |
 | 13 | Deploy a Stateful Application (MySQL StatefulSet) | [13-deploy-stateful-application-mysql.md](13-deploy-stateful-application-mysql.md) | 4 | statefulset, headless-service, configmap, storageclass, pvc, pv, ebs, init-containers, sidecar, mysql, replication, probes, drain, cordon, scale, loadbalancer, dashboard, rbac, clusterrolebinding, port-forward, taints, kube-system |
 | 14 | Deployment using ConfigMaps and Helm | [14-deployment-with-configmaps-and-helm.md](14-deployment-with-configmaps-and-helm.md) | 7 | helm, helm-create, helm-template, helm-package, helm-install, values-file, configmap, deployment, multi-container, nginx, flask, docker-build, namespace, service, kubectl-expose, kubectl-describe, kubectl-logs, kubectl-exec, errimagepull, troubleshooting |
+| 15 | Creating Ingress Rules | [15-creating-ingress-rules.md](15-creating-ingress-rules.md) | 1 | ingress, ingress-controller, nginx-ingress, path-routing, host-routing, virtual-hosting, ingressClassName, rewrite-target, annotations, services, deployments, loadbalancer, kubectl-logs, curl |
+| 16 | Deployment Strategies: Canary and Blue/Green | [16-deployment-strategies-canary-blue-green.md](16-deployment-strategies-canary-blue-green.md) | 1 | deployment-strategies, canary, blue-green, rollingupdate, recreate, labels, selectors, services, loadbalancer, kubectl-patch, kubectl-set-image, readiness-probe |
+| 17 | Using Custom Resource Definitions (CRDs) | [17-custom-resource-definitions.md](17-custom-resource-definitions.md) | 1 | crd, custom-resources, api-resources, argocd, gitops, kubectl-get, kubectl-describe, kubectl-edit, port-forward, secrets, shortnames |
+| 18 | API Access Control: Authentication, Authorization, Admission | [18-api-access-control-authn-authz-admission.md](18-api-access-control-authn-authz-admission.md) | 3 | authentication, authorization, admission-control, kubeconfig, contexts, certificates, rbac, roles, clusterroles, rolebinding, clusterrolebinding, serviceaccount, tokens, projected-volume, can-i, impersonation, kube-apiserver |
 
 ## Topic index
 
 | Topic | Labs |
 |-------|------|
 | Pods and manifests | 00, 01 |
-| Labels, selectors, annotations | 02 |
-| Deployments, rollouts, rollbacks | 00, 03, 14 |
+| Labels, selectors, annotations | 02, 16 |
+| Deployments, rollouts, rollbacks | 00, 03, 14, 16 |
+| Deployment strategies (canary, blue/green) | 16 |
 | StatefulSets and headless Services | 13 |
-| Services and exposure | 00, 03, 05, 13, 14 |
+| Services and exposure | 00, 03, 05, 13, 14, 15, 16 |
+| Ingress and HTTP routing | 15 |
 | Jobs and CronJobs | 04 |
 | Logging | 00, 05, 14 |
 | Multi-container and sidecars | 00, 05, 12, 13, 14 |
 | Helm charts, templates, values | 14 |
-| Troubleshooting (describe, events, image pull) | 06, 14 |
+| Troubleshooting (describe, events, image pull) | 06, 14, 15 |
 | Docker image build | 14 |
 | Init containers | 00, 13 |
-| Probes | 00, 06, 13 |
+| Probes | 00, 06, 13, 16 |
 | Monitoring and metrics-server | 00, 06, 07, 13 |
 | Resources, requests, limits | 00, 07, 12 |
 | Security contexts | 08 |
 | Persistent volumes and PVCs | 00, 09, 13 |
 | StorageClasses and dynamic provisioning | 13 |
 | Ephemeral volumes | 12 |
-| ConfigMaps and Secrets | 00, 10, 13, 14 |
-| ServiceAccounts and RBAC | 11, 13 |
+| ConfigMaps and Secrets | 00, 10, 13, 14, 17 |
+| ServiceAccounts and RBAC | 11, 13, 18 |
+| CRDs and custom resources | 17 |
+| API discovery (api-resources, explain) | 01, 17 |
+| API access control (authn, authz, admission) | 18 |
+| kubeconfig and contexts | 18 |
 | Cluster operations (drain, cordon, scale) | 13 |
-| Kubernetes Dashboard and port-forward | 13 |
+| Kubernetes Dashboard and port-forward | 13, 17 |
 
 ## How this is used
 
