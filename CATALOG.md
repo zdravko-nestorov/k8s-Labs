@@ -27,6 +27,7 @@ Numbers follow the order the labs were added. Multi-step labs keep all steps in 
 | 16 | Deployment Strategies: Canary and Blue/Green | [16-deployment-strategies-canary-blue-green.md](16-deployment-strategies-canary-blue-green.md) | 1 | deployment-strategies, canary, blue-green, rollingupdate, recreate, labels, selectors, services, loadbalancer, kubectl-patch, kubectl-set-image, readiness-probe |
 | 17 | Using Custom Resource Definitions (CRDs) | [17-custom-resource-definitions.md](17-custom-resource-definitions.md) | 1 | crd, custom-resources, api-resources, argocd, gitops, kubectl-get, kubectl-describe, kubectl-edit, port-forward, secrets, shortnames |
 | 18 | API Access Control: Authentication, Authorization, Admission | [18-api-access-control-authn-authz-admission.md](18-api-access-control-authn-authz-admission.md) | 3 | authentication, authorization, admission-control, kubeconfig, contexts, certificates, rbac, roles, clusterroles, rolebinding, clusterrolebinding, serviceaccount, tokens, projected-volume, can-i, impersonation, kube-apiserver |
+| 19 | Getting Started with Docker on Linux | [19-getting-started-with-docker-on-linux.md](19-getting-started-with-docker-on-linux.md) | 7 | docker, docker-install, docker-group, docker-cli, docker-run, docker-ps, docker-exec, docker-logs, docker-search, dockerfile, docker-build, images, containers, layers, dockerhub, port-publishing, ec2 |
 
 ## Topic index
 
@@ -44,7 +45,8 @@ Numbers follow the order the labs were added. Multi-step labs keep all steps in 
 | Multi-container and sidecars | 00, 05, 12, 13, 14 |
 | Helm charts, templates, values | 14 |
 | Troubleshooting (describe, events, image pull) | 06, 14, 15 |
-| Docker image build | 14 |
+| Docker image build | 14, 19 |
+| Docker basics (CLI, containers, Dockerfile) | 19 |
 | Init containers | 00, 13 |
 | Probes | 00, 06, 13, 16 |
 | Monitoring and metrics-server | 00, 06, 07, 13 |
