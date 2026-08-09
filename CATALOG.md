@@ -42,6 +42,7 @@ Lab numbers follow the order the labs were added. Multi-step labs keep all steps
 | 02 | Configuration | [exams/02-configuration.md](exams/02-configuration.md) | 5 | secrets, configmaps, volumes, envFrom, serviceaccount, securityContext, runAsUser, fsGroup, resources, requests, limits, labels, multi-container, kubectl-create, kubectl-set, kubectl-patch, dry-run |
 | 03 | Multi-Container Pods | [exams/03-multi-container-pods.md](exams/03-multi-container-pods.md) | 3 | multi-container, sidecar, emptyDir, volumes, volumeMounts, readOnly, logging, tail, pod-networking, localhost, dns, configmap, configMapKeyRef, postStart, lifecycle, kubectl-replace, kubectl-logs |
 | 04 | Observability | [exams/04-observability.md](exams/04-observability.md) | 5 | probes, livenessProbe, readinessProbe, httpGet, troubleshooting, endpoints, services, nodeport, kubectl-logs, label-selector, kubectl-exec, kubectl-cp, kubectl-top, metrics-server, kubectl-edit, kubectl-describe |
+| 05 | Pod Design | [exams/05-pod-design.md](exams/05-pod-design.md) | 6 | deployments, replicas, scale, set-image, rollout-history, change-cause, annotations, labels, label-selector, set-based-selector, hpa, autoscale, cronjob, schedule, jsonpath, sort-by, custom-columns, kubectl-create |
 
 Fastest commands across all exams: [exams/CHEATSHEET.md](exams/CHEATSHEET.md). Solutions inside exam files are collapsed, so a file can be re-attempted without spoilers.
 
@@ -52,14 +53,15 @@ Lab numbers unless marked with E, which means an exam.
 | Topic | Labs |
 |-------|------|
 | Pods and manifests | 00, 01, E01, E02 |
-| Labels, selectors, annotations | 02, 16, E01, E02 |
+| Labels, selectors, annotations | 02, 16, E01, E02, E05 |
 | Namespaces | 02, E01 |
-| Deployments, rollouts, rollbacks | 00, 03, 14, 16 |
+| Deployments, rollouts, rollbacks | 00, 03, 14, 16, E05 |
+| Autoscaling (HPA) | 00, E05 |
 | Deployment strategies (canary, blue/green) | 16 |
 | StatefulSets and headless Services | 13 |
 | Services and exposure | 00, 03, 05, 13, 14, 15, 16, E04 |
 | Ingress and HTTP routing | 15 |
-| Jobs and CronJobs | 04 |
+| Jobs and CronJobs | 04, E05 |
 | Logging | 00, 05, 14, E03, E04 |
 | Multi-container and sidecars | 00, 05, 12, 13, 14, E02, E03 |
 | Pod networking (localhost, Pod DNS) | E03 |
@@ -77,9 +79,9 @@ Lab numbers unless marked with E, which means an exam.
 | kubeconfig and contexts | 18 |
 | CRDs and custom resources | 17 |
 | API discovery (api-resources, explain) | 01, 17, E01, E02 |
-| Imperative kubectl and dry-run | E01, E02 |
-| Updating live objects (set, patch, edit, replace) | 03, 16, 17, E01, E02, E03, E04 |
-| JSONPath and output formats | 10, 12, 13, 14, 15, 16, 17, E01 |
+| Imperative kubectl and dry-run | E01, E02, E05 |
+| Updating live objects (set, patch, edit, replace) | 03, 16, 17, E01, E02, E03, E04, E05 |
+| JSONPath and output formats | 10, 12, 13, 14, 15, 16, 17, E01, E05 |
 | Helm charts, templates, values | 14 |
 | Troubleshooting (describe, events, endpoints) | 06, 14, 15, E04 |
 | Cluster operations (drain, cordon, scale) | 13 |
