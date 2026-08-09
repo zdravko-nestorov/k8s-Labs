@@ -35,20 +35,75 @@ kubectl create ns <ns>
 kubectl config set-context --current --namespace=<ns>
 ```
 
+## Deployments
+
+```bash
+# create with image and replica count in one line                         [E05 t1]
+kubectl create deployment <name> -n <ns> --image=<image> --replicas=2
+
+kubectl scale deployment <name> -n <ns> --replicas=4                   # [E05 t1]
+kubectl set image deployment <name> <container>=<image> -n <ns>        # [E05 t1]
+
+# fill the CHANGE-CAUSE column, --record no longer exists                 [E05 t3]
+kubectl annotate deployment <name> -n <ns> \
+  kubernetes.io/change-cause="set image to <image>" --overwrite=true
+
+kubectl rollout status deployment <name> -n <ns>
+kubectl rollout history deployment <name> -n <ns>
+kubectl rollout undo deployment <name> -n <ns> --to-revision=2
+```
+
+The container is named after the image, so `--image=nginx:1.17.8` gives a container called `nginx`.
+
+Scaling makes no new revision. Only pod template changes do.
+
+## Autoscaling
+
+```bash
+# a top-level verb, not part of kubectl create                            [E05 t4]
+kubectl autoscale deployment <name> -n <ns> --min=2 --max=4 --cpu-percent=65
+kubectl get hpa -n <ns>
+```
+
+Needs metrics-server, and the containers need CPU **requests**. Utilisation is a percentage of the
+request, so with no request there is nothing to measure against.
+
+## Jobs and CronJobs
+
+```bash
+# the most deeply nested manifest in CKAD, so use the command             [E05 t5]
+kubectl create cronjob <name> -n <ns> --image=<image> --schedule='*/10 * * * *' -- <command>
+
+kubectl create job <name> --image=<image> -- <command>
+kubectl create job manual --from=cronjob/<name>          # run a CronJob right now
+```
+
+Quote the schedule. The shell would expand `*/10 * * * *`.
+
 ## Labels
 
 ```bash
 # change a label on a running object, no restart                          [E01 t3]
 kubectl label pod -n <ns> <pod> key=newvalue --overwrite
 
+# relabel every object matching a selector, one command                   [E05 t2]
+kubectl label pods -n <ns> --selector env=prod app=cloudacademy
+
 # set labels at creation, -l is short for --labels                        [E02 t4]
 kubectl run <pod> -n <ns> --image=nginx -l env=prod,type=processor
 
 # filter by label
 kubectl get pods -l key=value
+kubectl get pods -l 'colour in (orange,red,yellow)'      # set-based, the closest to OR  [E05 t6]
+kubectl get pods -l 'tier notin (frontend)'
+kubectl get pods -l 'partition'                          # key exists, any value
+kubectl get pods --show-labels
 ```
 
 `--overwrite` is required when the key already exists.
+
+`--selector` works with `label`, `delete`, `describe`, and `logs`, not only `get`. Spaces after the
+commas inside `in (...)` are valid, the Kubernetes docs use them.
 
 ## Secrets
 
@@ -318,7 +373,19 @@ kubectl get pod -n <ns> <pod> -o jsonpath='{.status.podIP}'
 '{.items[0].metadata.name}'                          # first item in a list
 '{.items[*].spec.serviceAccountName}'                # one field across all Pods
 '{.data.password}'                                   # Secret value, still base64
+
+# one name per line, sorted by a field                                    [E05 t6]
+kubectl get pods -n <ns> --sort-by=.status.podIP \
+  -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}'
+
+# same thing without JSONPath, but it prints a header row
+kubectl get pods -n <ns> --sort-by=.status.podIP -o custom-columns="NAME:.metadata.name"
 ```
+
+`--sort-by` takes a JSONPath **without** braces and sorts as text, so IPs sort lexicographically.
+
+Find a path with `kubectl get pod <name> -o yaml` or by walking `kubectl explain pod.status`.
+Anything the cluster assigns, such as an IP, lives under `status`.
 
 ## Generate a manifest
 
@@ -329,12 +396,17 @@ kubectl run <pod> --image=<image> --dry-run=client -o yaml > pod.yaml
 # same for other resources
 kubectl create deployment <name> --image=<image> --dry-run=client -o yaml
 kubectl create job <name> --image=<image> --dry-run=client -o yaml
+kubectl create cronjob <name> --image=<image> --schedule='* * * * *' --dry-run=client -o yaml
 kubectl create configmap <name> --from-literal K=V --dry-run=client -o yaml
 kubectl create secret generic <name> --from-literal K=V --dry-run=client -o yaml
 kubectl expose pod <pod> --port=80 --dry-run=client -o yaml
+kubectl autoscale deployment <name> --min=2 --max=4 --cpu-percent=65 --dry-run=client -o yaml
 ```
 
 `--image` is required for `kubectl run`, even with `--dry-run`.
+
+If the dry run already prints what you want, **drop `--dry-run` and run it**. Do not retype the
+output into a manifest.
 
 ## Fields with no imperative flag
 
@@ -382,3 +454,4 @@ Check inside the container, not just the manifest. The API accepts fields that d
 | E02 | [Configuration](02-configuration.md) |
 | E03 | [Multi-Container Pods](03-multi-container-pods.md) |
 | E04 | [Observability](04-observability.md) |
+| E05 | [Pod Design](05-pod-design.md) |
