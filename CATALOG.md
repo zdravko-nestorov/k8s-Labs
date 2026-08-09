@@ -40,6 +40,7 @@ Lab numbers follow the order the labs were added. Multi-step labs keep all steps
 |---|--------|------|--------|--------|
 | 01 | Core Concepts | [exams/01-core-concepts.md](exams/01-core-concepts.md) | 6 | pods, namespaces, labels, restartPolicy, jsonpath, dry-run, kubectl-run, kubectl-label, kubectl-edit, kubectl-explain, terminationGracePeriodSeconds, env |
 | 02 | Configuration | [exams/02-configuration.md](exams/02-configuration.md) | 5 | secrets, configmaps, volumes, envFrom, serviceaccount, securityContext, runAsUser, fsGroup, resources, requests, limits, labels, multi-container, kubectl-create, kubectl-set, kubectl-patch, dry-run |
+| 03 | Multi-Container Pods | [exams/03-multi-container-pods.md](exams/03-multi-container-pods.md) | 3 | multi-container, sidecar, emptyDir, volumes, volumeMounts, readOnly, logging, tail, pod-networking, localhost, dns, configmap, configMapKeyRef, postStart, lifecycle, kubectl-replace, kubectl-logs |
 
 Fastest commands across all exams: [exams/CHEATSHEET.md](exams/CHEATSHEET.md). Solutions inside exam files are collapsed, so a file can be re-attempted without spoilers.
 
@@ -58,8 +59,9 @@ Lab numbers unless marked with E, which means an exam.
 | Services and exposure | 00, 03, 05, 13, 14, 15, 16 |
 | Ingress and HTTP routing | 15 |
 | Jobs and CronJobs | 04 |
-| Logging | 00, 05, 14 |
-| Multi-container and sidecars | 00, 05, 12, 13, 14, E02 |
+| Logging | 00, 05, 14, E03 |
+| Multi-container and sidecars | 00, 05, 12, 13, 14, E02, E03 |
+| Pod networking (localhost, Pod DNS) | E03 |
 | Init containers | 00, 13 |
 | Probes | 00, 06, 13, 16 |
 | Monitoring and metrics-server | 00, 06, 07, 13 |
@@ -67,15 +69,15 @@ Lab numbers unless marked with E, which means an exam.
 | Security contexts | 08, E02 |
 | Persistent volumes and PVCs | 00, 09, 13 |
 | StorageClasses and dynamic provisioning | 13 |
-| Ephemeral volumes | 12 |
-| ConfigMaps and Secrets | 00, 10, 13, 14, 17, E02 |
+| Ephemeral volumes | 12, E03 |
+| ConfigMaps and Secrets | 00, 10, 13, 14, 17, E02, E03 |
 | ServiceAccounts and RBAC | 11, 13, 18, E02 |
 | API access control (authn, authz, admission) | 18 |
 | kubeconfig and contexts | 18 |
 | CRDs and custom resources | 17 |
 | API discovery (api-resources, explain) | 01, 17, E01, E02 |
 | Imperative kubectl and dry-run | E01, E02 |
-| Updating live objects (set, patch, edit) | 03, 16, 17, E01, E02 |
+| Updating live objects (set, patch, edit, replace) | 03, 16, 17, E01, E02, E03 |
 | JSONPath and output formats | 10, 12, 13, 14, 15, 16, 17, E01 |
 | Helm charts, templates, values | 14 |
 | Troubleshooting (describe, events, image pull) | 06, 14, 15 |
