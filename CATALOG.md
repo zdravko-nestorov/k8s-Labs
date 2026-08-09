@@ -39,6 +39,7 @@ Lab numbers follow the order the labs were added. Multi-step labs keep all steps
 | # | Domain | File | Checks | Topics |
 |---|--------|------|--------|--------|
 | 01 | Core Concepts | [exams/01-core-concepts.md](exams/01-core-concepts.md) | 6 | pods, namespaces, labels, restartPolicy, jsonpath, dry-run, kubectl-run, kubectl-label, kubectl-edit, kubectl-explain, terminationGracePeriodSeconds, env |
+| 02 | Configuration | [exams/02-configuration.md](exams/02-configuration.md) | 5 | secrets, configmaps, volumes, envFrom, serviceaccount, securityContext, runAsUser, fsGroup, resources, requests, limits, labels, multi-container, kubectl-create, kubectl-set, kubectl-patch, dry-run |
 
 Fastest commands across all exams: [exams/CHEATSHEET.md](exams/CHEATSHEET.md). Solutions inside exam files are collapsed, so a file can be re-attempted without spoilers.
 
@@ -48,8 +49,8 @@ Lab numbers unless marked with E, which means an exam.
 
 | Topic | Labs |
 |-------|------|
-| Pods and manifests | 00, 01, E01 |
-| Labels, selectors, annotations | 02, 16, E01 |
+| Pods and manifests | 00, 01, E01, E02 |
+| Labels, selectors, annotations | 02, 16, E01, E02 |
 | Namespaces | 02, E01 |
 | Deployments, rollouts, rollbacks | 00, 03, 14, 16 |
 | Deployment strategies (canary, blue/green) | 16 |
@@ -58,22 +59,23 @@ Lab numbers unless marked with E, which means an exam.
 | Ingress and HTTP routing | 15 |
 | Jobs and CronJobs | 04 |
 | Logging | 00, 05, 14 |
-| Multi-container and sidecars | 00, 05, 12, 13, 14 |
+| Multi-container and sidecars | 00, 05, 12, 13, 14, E02 |
 | Init containers | 00, 13 |
 | Probes | 00, 06, 13, 16 |
 | Monitoring and metrics-server | 00, 06, 07, 13 |
-| Resources, requests, limits | 00, 07, 12 |
-| Security contexts | 08 |
+| Resources, requests, limits | 00, 07, 12, E02 |
+| Security contexts | 08, E02 |
 | Persistent volumes and PVCs | 00, 09, 13 |
 | StorageClasses and dynamic provisioning | 13 |
 | Ephemeral volumes | 12 |
-| ConfigMaps and Secrets | 00, 10, 13, 14, 17 |
-| ServiceAccounts and RBAC | 11, 13, 18 |
+| ConfigMaps and Secrets | 00, 10, 13, 14, 17, E02 |
+| ServiceAccounts and RBAC | 11, 13, 18, E02 |
 | API access control (authn, authz, admission) | 18 |
 | kubeconfig and contexts | 18 |
 | CRDs and custom resources | 17 |
-| API discovery (api-resources, explain) | 01, 17, E01 |
-| Imperative kubectl and dry-run | E01 |
+| API discovery (api-resources, explain) | 01, 17, E01, E02 |
+| Imperative kubectl and dry-run | E01, E02 |
+| Updating live objects (set, patch, edit) | 03, 16, 17, E01, E02 |
 | JSONPath and output formats | 10, 12, 13, 14, 15, 16, 17, E01 |
 | Helm charts, templates, values | 14 |
 | Troubleshooting (describe, events, image pull) | 06, 14, 15 |
