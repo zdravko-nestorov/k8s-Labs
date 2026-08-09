@@ -245,8 +245,8 @@ You see GET requests for both `/blue` and `/red`. Example lines:
 I0809 10:02:59.780896       7 store.go:365] "Found valid IngressClass" ingress="default/lab-ingress" ingressclass="nginx"
 I0809 10:02:59.781460       7 controller.go:152] "Configuration changes detected, backend reload required"
 I0809 10:02:59.847081       7 controller.go:169] "Backend successfully reloaded"
-87.120.141.75 - - [09/Aug/2026:10:04:52 +0000] "GET /blue HTTP/1.1" 200 99 "-" "Mozilla/5.0 ..." 511 0.004 [default-blue-app-80] [] 192.168.23.130:8000 99 0.004 200 50cbb22b9f922dd21cef678188e16bb4
-87.120.141.75 - - [09/Aug/2026:10:05:18 +0000] "GET /red HTTP/1.1" 200 99 "-" "Mozilla/5.0 ..." 510 0.003 [default-red-app-80] [] 192.168.23.131:8000 99 0.003 200 0a3e51595f8d7ea5cf9b5035cfa897aa
+<your-public-ip> - - [09/Aug/2026:10:04:52 +0000] "GET /blue HTTP/1.1" 200 99 "-" "Mozilla/5.0 ..." 511 0.004 [default-blue-app-80] [] 192.168.23.130:8000 99 0.004 200 50cbb22b9f922dd21cef678188e16bb4
+<your-public-ip> - - [09/Aug/2026:10:05:18 +0000] "GET /red HTTP/1.1" 200 99 "-" "Mozilla/5.0 ..." 510 0.003 [default-red-app-80] [] 192.168.23.131:8000 99 0.003 200 0a3e51595f8d7ea5cf9b5035cfa897aa
 ```
 
 12. Switch the Ingress to hostname-based routing:
