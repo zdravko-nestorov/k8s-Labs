@@ -23,6 +23,8 @@ kubectl run -n <ns> <pod> --image=<image> --env key=value
 
 Text after `--` becomes container `args` and replaces the image CMD. Add `--command` to replace the ENTRYPOINT instead.
 
+`kubectl run` always creates **one** container. Two containers means YAML from the start.
+
 ## Namespaces
 
 ```bash
@@ -39,11 +41,132 @@ kubectl config set-context --current --namespace=<ns>
 # change a label on a running object, no restart                          [E01 t3]
 kubectl label pod -n <ns> <pod> key=newvalue --overwrite
 
+# set labels at creation, -l is short for --labels                        [E02 t4]
+kubectl run <pod> -n <ns> --image=nginx -l env=prod,type=processor
+
 # filter by label
 kubectl get pods -l key=value
 ```
 
 `--overwrite` is required when the key already exists.
+
+## Secrets
+
+```bash
+# create from a literal, no base64 by hand                                [E02 t1]
+kubectl create secret generic <name> -n <ns> --from-literal=password=<value>
+
+# other types
+kubectl create secret docker-registry <name> --docker-server= --docker-username= --docker-password=
+kubectl create secret tls <name> --cert=path --key=path
+
+# read a value back
+kubectl get secret <name> -n <ns> -o jsonpath='{.data.password}' | base64 -d
+```
+
+Writing a Secret as YAML? Use `stringData`, not `data`, and skip the encoding.
+
+Mount as a volume (no flag, YAML only):
+
+```yaml
+spec:
+  containers:
+  - name: app
+    image: memcached
+    volumeMounts:
+    - name: secret
+      mountPath: "/etc/app"
+  volumes:
+  - name: secret
+    secret:
+      secretName: app-secret
+```
+
+## ConfigMaps
+
+```bash
+# create from literals, repeat the flag per pair                          [E02 t5]
+kubectl create configmap <name> -n <ns> --from-literal COLOUR=red --from-literal SPEED=fast
+
+# from a file or a whole directory
+kubectl create configmap <name> --from-file=path
+```
+
+Consume every key as environment variables (no flag, YAML only):
+
+```yaml
+    envFrom:
+    - configMapRef:
+        name: config1
+```
+
+Use `env` with `configMapKeyRef` when you need one key or a different variable name.
+
+## ServiceAccounts
+
+```bash
+# create                                                                  [E02 t2]
+kubectl create sa <name> -n <ns>
+
+# attach to an existing Deployment, one command, no patch file            [E02 t2]
+kubectl set serviceaccount deployment <name> <serviceaccount> -n <ns>
+
+# check the Pods really picked it up
+kubectl get pods -n <ns> -o jsonpath='{.items[*].spec.serviceAccountName}'
+```
+
+## Update an existing object
+
+```bash
+# kubectl set covers these subcommands
+kubectl set image deployment/<name> <container>=<image>
+kubectl set env deployment/<name> KEY=value
+kubectl set env --from=configmap/<name> deployment/<name>
+kubectl set resources deployment/<name> --requests=memory=100Mi --limits=memory=200Mi
+kubectl set serviceaccount deployment <name> <sa>
+kubectl set selector service <name> 'key=value'
+
+# anything kubectl set does not cover                                     [E02 t2]
+kubectl patch deployment <name> -n <ns> --patch '<yaml or json>'
+```
+
+`kubectl set` works on objects with a **pod template**, so Deployments yes, bare Pods no.
+
+## Security context
+
+No imperative flag. Generate, then edit. `fsGroup` is pod level, `runAsUser` works at both and the container value wins.
+
+```yaml
+spec:
+  securityContext:
+    fsGroup: 3000
+  containers:
+  - name: c1
+    securityContext:
+      runAsUser: 1000
+```
+
+```bash
+# prove it took effect                                                    [E02 t3]
+kubectl exec -n <ns> <pod> -c c1 -- id
+```
+
+## Resources
+
+No `kubectl run` flag for requests or limits. Checked on kubectl v1.36.3.
+
+```bash
+# generate, then add the block by hand                                    [E02 t4]
+kubectl run web1 -n ca100 --image=nginx -l env=prod --port=80 --dry-run=client -o yaml > pod.yaml
+```
+
+```yaml
+    resources:
+      requests:
+        memory: "100Mi"
+      limits:
+        memory: "200Mi"
+```
 
 ## Output and JSONPath
 
@@ -59,6 +182,7 @@ kubectl get pod -n <ns> <pod> -o jsonpath='{.status.podIP}'
 '{.spec.clusterIP}'                                  # Service cluster IP
 '{.status.loadBalancer.ingress[0].hostname}'         # load balancer DNS name
 '{.items[0].metadata.name}'                          # first item in a list
+'{.items[*].spec.serviceAccountName}'                # one field across all Pods
 '{.data.password}'                                   # Secret value, still base64
 ```
 
@@ -71,6 +195,8 @@ kubectl run <pod> --image=<image> --dry-run=client -o yaml > pod.yaml
 # same for other resources
 kubectl create deployment <name> --image=<image> --dry-run=client -o yaml
 kubectl create job <name> --image=<image> --dry-run=client -o yaml
+kubectl create configmap <name> --from-literal K=V --dry-run=client -o yaml
+kubectl create secret generic <name> --from-literal K=V --dry-run=client -o yaml
 kubectl expose pod <pod> --port=80 --dry-run=client -o yaml
 ```
 
@@ -83,8 +209,25 @@ Generate, edit the one field, apply.
 | Field | Where it goes | Seen in |
 |-------|---------------|---------|
 | `terminationGracePeriodSeconds` | `spec` | E01 t6 |
+| `resources.requests`, `resources.limits` | container | E02 t4 |
+| `securityContext.fsGroup` | `spec` | E02 t3 |
+| `securityContext.runAsUser` | `spec` or container | E02 t3 |
+| `volumes`, `volumeMounts` | `spec` and container | E02 t1 |
+| `envFrom` | container | E02 t5 |
+| a second container | `spec.containers` | E02 t3 |
 
 Confirm nesting with `kubectl explain pod.spec` before editing.
+
+## Verify your work
+
+```bash
+kubectl describe pod -n <ns> <pod>       # labels, ports, requests, limits, events
+kubectl exec -n <ns> <pod> -c <c> -- id  # user and group IDs
+kubectl logs -n <ns> <pod>               # environment variables the command printed
+kubectl get pods -n <ns>                 # it actually started
+```
+
+Check inside the container, not just the manifest. The API accepts fields that do not behave the way you expect.
 
 ## Habits that save time
 
@@ -92,9 +235,11 @@ Confirm nesting with `kubectl explain pod.spec` before editing.
 - Use `>` not `>>` when a task says save something to a file.
 - Tab completion is enabled on the lab hosts. Use it instead of reading `--help`.
 - `kubectl explain <resource>.<field>` beats searching the docs for field names.
+- Combine a heredoc with `kubectl apply -f -` to paste a manifest without opening an editor.
 
 ## Exams covered
 
 | Exam | Domain |
 |------|--------|
 | E01 | [Core Concepts](01-core-concepts.md) |
+| E02 | [Configuration](02-configuration.md) |
