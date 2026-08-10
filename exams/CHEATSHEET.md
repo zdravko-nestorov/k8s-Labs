@@ -20,7 +20,8 @@ Read this before an attempt. Every entry cites the exam it came from.
 | [Update an existing object](#update-an-existing-object) | `kubectl set`, `patch`, `replace --force`, and what merges |
 | [Security context](#security-context) | `runAsUser`, `fsGroup`, and where each belongs |
 | [Resources](#resources) | Memory and CPU requests and limits |
-| [Multi-container Pods](#multi-container-pods) | Add a container, share files, talk over localhost |
+| [QoS classes and eviction](#qos-classes-and-eviction) | Stop a Pod being evicted under memory pressure |
+| [Multi-container Pods](#multi-container-pods) | Add a container, share files, talk over localhost, name the pattern |
 | [Volumes and PersistentVolumes](#volumes-and-persistentvolumes) | hostPath, emptyDir, PV and PVC, binding rules |
 | [Probes](#probes) | Liveness and readiness blocks |
 | [Services](#services) | Expose a Pod or Deployment, ClusterIP, NodePort, fixed nodePort |
@@ -36,7 +37,8 @@ Read this before an attempt. Every entry cites the exam it came from.
 | [Habits that save time](#habits-that-save-time) | Small rules that avoid lost marks |
 | [Exams covered](#exams-covered) | Trace an entry back to its exam |
 
-Section titles are the words to search for. Entry tags like `[E05 t3]` mean exam 05, task 3.
+Section titles are the words to search for. Entry tags name the source: `[E05 t3]` is exam 05 task 3,
+`[C01 t1]` is challenge 01 task 1.
 
 ## Pods
 <sup>[↑ contents](#contents)</sup>
@@ -60,6 +62,9 @@ Text after `--` becomes container `args` and replaces the image CMD. Add `--comm
 
 `kubectl run` always creates **one** container. Two containers means YAML from the start.
 
+The two generators disagree about that trailing text. `kubectl create deployment <name> --image=<i> -- sleep 24h`
+writes `command`, with no way to write `args`. Verified on kubectl v1.36.3.
+
 `--port=80` writes `containerPort: 80`, and TCP is the default protocol, so "open to TCP" needs nothing extra.
 
 ## Namespaces
@@ -80,6 +85,9 @@ kubectl config set-context --current --namespace=<ns>
 # create with image and replica count in one line                         [E05 t1]
 kubectl create deployment <name> -n <ns> --image=<image> --replicas=2
 
+# with a command, so a busybox Pod stays up instead of exiting             [C02 t1]
+kubectl create deployment <name> -n <ns> --image=busybox:1.31.1 --replicas=1 -- sleep 24h
+
 kubectl scale deployment <name> -n <ns> --replicas=4                   # [E05 t1]
 kubectl set image deployment <name> <container>=<image> -n <ns>        # [E05 t1]
 
@@ -90,6 +98,10 @@ kubectl annotate deployment <name> -n <ns> \
 kubectl rollout status deployment <name> -n <ns>
 kubectl rollout history deployment <name> -n <ns>
 kubectl rollout undo deployment <name> -n <ns> --to-revision=2
+
+# revisionHistoryLimit has no flag, and a patch on a plain number is safe   [C01 t1]
+kubectl patch deployment <name> -n <ns> --patch='{"spec":{"revisionHistoryLimit":50}}'
+kubectl get deployment <name> -n <ns> -o jsonpath='{.spec.revisionHistoryLimit}'
 ```
 
 The container is named after the image, so `--image=nginx:1.17.8` gives a container called `nginx`.
@@ -211,12 +223,18 @@ Use `env` with `configMapKeyRef` when you need one key or a different variable n
 # create                                                                  [E02 t2]
 kubectl create sa <name> -n <ns>
 
-# attach to an existing Deployment, one command, no patch file            [E02 t2]
+# attach to an existing Deployment, one command, no patch file      [E02 t2, C02 t1]
 kubectl set serviceaccount deployment <name> <serviceaccount> -n <ns>
 
 # check the Pods really picked it up
 kubectl get pods -n <ns> -o jsonpath='{.items[*].spec.serviceAccountName}'
 ```
+
+No generator flag sets the ServiceAccount. `kubectl run --serviceaccount` was removed, and
+`kubectl create deployment` never had it, so create first and then `kubectl set serviceaccount`.
+Verified on kubectl v1.36.3.
+
+`serviceAccountName` is the field. `serviceAccount` is the old alias and still works.
 
 ## Update an existing object
 <sup>[↑ contents](#contents)</sup>
@@ -246,6 +264,7 @@ no merge key.
 |-------|--------------|----------------|
 | `service.spec.selector` (map) | merge the keys | old keys stay, and a selector is an AND, so it can still match nothing  [E06 t4] |
 | `service.spec.ports` (merge key `port`) | update the matching entry | safe, `targetPort` and the port name survive  [E06 t3] |
+| `pod.spec.volumes` (merge key `name`) | merge into the matching entry | the old volume type stays, and two types is invalid  [C02 t3] |
 | `networkpolicy.spec.ingress` (no merge key) | replace the list | the whole rule set is whatever you send  [E06 t5] |
 
 `kubectl get pod -o yaml` output is noisy but the API accepts it. Edit the `spec` and ignore the
@@ -277,8 +296,12 @@ kubectl exec -n <ns> <pod> -c c1 -- id
 No `kubectl run` flag for requests or limits. Checked on kubectl v1.36.3.
 
 ```bash
-# generate, then add the block by hand                                    [E02 t4]
+# a bare Pod: generate, then add the block by hand                        [E02 t4]
 kubectl run web1 -n ca100 --image=nginx -l env=prod --port=80 --dry-run=client -o yaml > pod.yaml
+
+# anything with a pod template: one command, no editor                    [C02 t2]
+kubectl set resources deployment <name> -n <ns> \
+  --limits=cpu=200m,memory=200Mi --requests=cpu=200m,memory=200Mi
 ```
 
 ```yaml
@@ -288,6 +311,44 @@ kubectl run web1 -n ca100 --image=nginx -l env=prod --port=80 --dry-run=client -
       limits:
         memory: "200Mi"
 ```
+
+Requests drive **scheduling**, limits cap **usage**. A Pod is scheduled only where the sum of its
+containers' requests fits.
+
+On a bare Pod `resources` is immutable, so a change needs `kubectl replace --force` or a delete. On a
+Deployment the rollout replaces the Pods, so a plain apply is enough.
+
+## QoS classes and eviction
+<sup>[↑ contents](#contents)</sup>
+
+The kubelet evicts in this order under node pressure: BestEffort, then Burstable, then Guaranteed.
+"Must not be evicted unless higher priority Pods need the room" means **Guaranteed**. [C02 t2]
+
+| Class | Rule |
+|-------|------|
+| Guaranteed | every container has a CPU and memory **request equal to its limit**, both above zero |
+| Burstable | any request or limit is set, but not the Guaranteed pattern |
+| BestEffort | no requests and no limits anywhere in the Pod |
+
+```bash
+# one line, and it satisfies Guaranteed                                   [C02 t2]
+kubectl set resources deployment <name> -n <ns> \
+  --limits=cpu=200m,memory=200Mi --requests=cpu=200m,memory=200Mi
+
+# the graded fact lives on the Pod, and the cluster computes it
+kubectl get pods -n <ns> -o custom-columns='NAME:.metadata.name,QOS:.status.qosClass'
+
+# would a LimitRange fill requests with its own numbers first?
+kubectl get limitrange -n <ns>
+```
+
+Limits alone are usually enough, because the API copies a limit into a missing request. Two traps go
+with that:
+
+- The copy happens on a **Pod**, never on a pod template. `kubectl get deployment -o yaml` keeps
+  showing limits with no requests, which reads like Burstable. Check `.status.qosClass` on the Pod.
+- A LimitRange with a `defaultRequest` applies **before** that copy. If its number differs from the
+  limit, the Pod is Burstable. Writing both blocks removes the doubt.
 
 ## Multi-container Pods
 <sup>[↑ contents](#contents)</sup>
@@ -335,6 +396,15 @@ Networking inside a Pod: one network namespace, one IP. From container to contai
 ```
 
 Two containers in one Pod cannot bind the same port.
+
+Naming the pattern is its own exam check. Decide from the direction the data moves, not the container
+name. [C02 t4]
+
+| Pattern | The helper container | Example |
+|---------|---------------------|---------|
+| Sidecar | adds a function the app lacks | ships the app's log files |
+| Adapter | reformats the app's output for an outside reader | raw metrics into a scraper's JSON |
+| Ambassador | proxies the app's outbound connections | a local proxy that finds the right database |
 
 ## Volumes and PersistentVolumes
 <sup>[↑ contents](#contents)</sup>
@@ -396,12 +466,43 @@ spec:
 
 ```bash
 kubectl -n <ns> get pv,pvc                  # both must read Bound        [E07 t1]
+kubectl get sc                              # is a class marked (default)?  [C02 t3]
+kubectl -n <ns> describe pvc <pvc>          # a Pending claim says why here
 kubectl api-resources --namespaced=false    # what has no namespace
 kubectl explain persistentvolume.spec       # field names
 ```
 
-A claim binds when three things line up: equal `storageClassName`, an access mode the PV offers, and
-PV capacity at least the request. Pin a claim to one PV with `spec.volumeName: pv`.
+Two ways to get a volume, and they need different manifests:
+
+- **Static.** Someone creates the PV. The claim binds when three things line up: equal
+  `storageClassName`, an access mode the PV offers, and PV capacity at least the request. [E07 t1]
+- **Dynamic.** A default StorageClass creates the volume from the claim. The claim names size and
+  access mode and **nothing else**. [C02 t3]
+
+`spec.volumeName` on a claim is the name of a **PersistentVolume** to bind to, so it only belongs in
+the static case. Point it at a name no PV has and the claim sits `Pending` for ever, with dynamic
+provisioning skipped and no error anywhere.
+
+Swap an `emptyDir` for a claim in a running Deployment: [C02 t3]
+
+```bash
+kubectl -n <ns> edit deployment <name>      # keep the volume name, change only the type
+```
+
+```yaml
+  volumes:
+  - name: metrics                           # every volumeMount refers to this name, so keep it
+    persistentVolumeClaim:
+      claimName: <pvc>
+```
+
+Do not patch this. `spec.volumes` merges on `name`, so a patch leaves `emptyDir` in place next to the
+new field and the API rejects it with "may not specify more than 1 volume type". A patch has to null
+the old field: `{"name":"metrics","emptyDir":null,"persistentVolumeClaim":{...}}`.
+
+`ReadWriteOnce` plus the default RollingUpdate can wedge a single-replica Deployment. The new Pod may
+land on another node, fail to attach, and wait while the old Pod is kept alive. `strategy: Recreate`
+avoids the standoff.
 
 `ReadWriteOnce` is one **node**. `ReadWriteOncePod` is one **Pod**. `ReadOnlyMany` and
 `ReadWriteMany` are many nodes. Tasks say "a single Node", which means `ReadWriteOnce`.
@@ -478,7 +579,17 @@ Pod, or it matches Pods that are not Ready. A Service never routes to a Pod that
 probe port that does not match the container port is the classic reason.
 
 The Service selector must match the labels on the **Pods**, at `spec.template.metadata.labels` in a
-Deployment, not the labels on the Deployment object.
+Deployment, not the labels on the Deployment object. Compare the two directly instead of reading
+whole objects:
+
+```bash
+kubectl -n <ns> get deployment <name> -o jsonpath='{.spec.template.metadata.labels}'   # [C01 t2]
+kubectl -n <ns> get svc <svc> -o jsonpath='{.spec.selector}'
+kubectl -n <ns> get svc <svc> -o jsonpath='{.spec.ports}'      # targetPort against the container port
+```
+
+When endpoints are filled but traffic still fails, the fault is a port or the type. A task that says
+"clients outside the cluster" is also asking whether the type is ClusterIP.
 
 ```bash
 # test from inside the cluster using Service DNS, no node IP lookup needed
@@ -636,6 +747,8 @@ Generate, edit the one field, apply.
 | a second container | `spec.containers` | E02 t3, E03 t1 |
 | `lifecycle.postStart` | container | E03 t2 |
 | `livenessProbe`, `readinessProbe` | container | E04 t1 |
+| `revisionHistoryLimit` | Deployment `spec` | C01 t1 |
+| `env` with `secretKeyRef` on a bare Pod | container | C01 t4 |
 | `ports[].nodePort` | Service `spec` | E06 t3 |
 | the whole NetworkPolicy | its own object | E06 t5 |
 
@@ -652,7 +765,35 @@ kubectl logs -n <ns> <pod> -c <c>        # one container of a multi-container Po
 kubectl get pods -n <ns>                 # it actually started
 kubectl get ep -n <ns> <svc>             # a Service really found its Pods
 kubectl get svc -n <ns> <svc>            # PORT(S) shows 80:32080/TCP for a fixed nodePort
+kubectl get pvc -n <ns>                  # STATUS must read Bound, never Pending    [C02 t3]
+kubectl get pod -n <ns> <pod> -o jsonpath='{.status.qosClass}'   # Guaranteed        [C02 t2]
+kubectl get <kind> <name> -o jsonpath='{.spec.<field>}'   # one field, instead of a whole -o yaml dump
 ```
+
+Read the field back from the object that **owns** it. A pod template never shows a defaulted request
+or a QoS class, so checking a Deployment for those can only look like a failure.
+
+Reading an environment variable back, which needs care:
+
+```bash
+kubectl exec -n <ns> <pod> -- printenv SECRET_TKN         # shortest and correct   [C01 t4]
+kubectl exec -n <ns> <pod> -- sh -c 'echo $SECRET_TKN'    # single quotes, the container's shell expands
+kubectl exec -n <ns> <pod> -- echo "$SECRET_TKN"          # WRONG, twice over
+```
+
+The wrong one fails for two reasons. Double quotes let the **local** shell expand the name before
+kubectl runs, so an empty string is sent. And `exec` runs `echo` with no shell in between, so nothing
+would expand it inside the container either.
+
+Sending a real request, when no Pod in the namespace has `curl`:
+
+```bash
+kubectl run client -n <ns> --image=curlimages/curl -it --rm --restart=Never -- curl http://<svc>:<port>
+```
+
+`--rm` deletes the Pod on exit and only works together with `-it`. `--restart=Never` makes it a bare
+Pod, so nothing recreates it. Use the **Service port** here, never a nodePort. Inside the cluster a
+nodePort is not reachable by Service name.
 
 Check inside the container, not just the manifest. The API accepts fields that do not behave the way you expect.
 
@@ -660,7 +801,8 @@ Check inside the container, not just the manifest. The API accepts fields that d
 <sup>[↑ contents](#contents)</sup>
 
 - Read the verb. "Generate a manifest" is not "create the Pod".
-- Add nothing the task did not ask for. Every extra field is unpaid risk.
+- Add nothing the task did not ask for. Every extra field is unpaid risk. `spec.volumeName` on a claim broke the storage while the check still went green.  [C02 t3]
+- A passing check means the objects match what the grader reads. It is not proof the thing works.  [C02 t3]
 - Use `>` not `>>` when a task says save something to a file.
 - When a task hands you a command to run, run it **after** the fix. Its output is what gets graded.
 - Tab completion is enabled on the lab hosts. Use it instead of reading `--help`.
@@ -679,3 +821,5 @@ Check inside the container, not just the manifest. The API accepts fields that d
 | E05 | [Pod Design](05-pod-design.md) |
 | E06 | [Services and Networking](06-services-and-networking.md) |
 | E07 | [State Persistence](07-state-persistence.md) |
+| C01 | [Kubernetes Certification Challenge](../challenges/01-kubernetes-certification-challenge.md), no answer key |
+| C02 | [CKAD Challenge](../challenges/02-ckad-challenge.md), no answer key |
