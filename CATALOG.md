@@ -6,8 +6,9 @@ Notes from the course **Cloud Native Champions: CKAD Bootcamp**.
 |--------|---------|
 | `labs/` | Course labs with worked instructions |
 | `exams/` | CKAD practice exams: tasks, my solution, official solution |
+| `challenges/` | Lab challenges with no answer key: tasks, my solution, review against these notes |
 
-Lab numbers follow the order the labs were added. Multi-step labs keep all steps in one file. Exams have their own number series, one file per exam domain.
+Lab numbers follow the order the labs were added. Multi-step labs keep all steps in one file. Exams and challenges each have their own number series, one file per exam domain or challenge.
 
 ## Labs
 
@@ -46,48 +47,59 @@ Lab numbers follow the order the labs were added. Multi-step labs keep all steps
 | 06 | Services & Networking | [exams/06-services-and-networking.md](exams/06-services-and-networking.md) | 5 | services, clusterip, nodeport, target-port, endpoints, kubectl-expose, kubectl-create-service, set-selector, label-selector, troubleshooting, networkpolicy, podselector, pod-networking, pods, restartPolicy, kubectl-run, kubectl-patch, kubectl-edit |
 | 07 | State Persistence | [exams/07-state-persistence.md](exams/07-state-persistence.md) | 2 | persistentvolume, persistentvolumeclaim, pv, pvc, storageclass, hostpath, accessmodes, capacity, binding, volumes, volumeMounts, multi-container, cluster-scoped, kubectl-explain, kubectl-apply |
 
-Fastest commands across all exams: [exams/CHEATSHEET.md](exams/CHEATSHEET.md). Solutions inside exam files are collapsed, so a file can be re-attempted without spoilers.
+## Challenges
+
+No solution guide exists for these. The review blocks judge my answers against the labs and exams in this repository, so they are second-hand. Where a challenge and an exam disagree, trust the exam.
+
+| # | Challenge | File | Score | Topics |
+|---|-----------|------|-------|--------|
+| 01 | Kubernetes Certification Challenge | [challenges/01-kubernetes-certification-challenge.md](challenges/01-kubernetes-certification-challenge.md) | 4/4 | deployments, replicas, revisionHistoryLimit, kubectl-create, kubectl-patch, services, endpoints, label-selector, set-selector, troubleshooting, kubectl-top, metrics-server, secrets, secretKeyRef, env, kubectl-exec, printenv |
+| 02 | Certified Kubernetes Application Developer (CKAD) Challenge | [challenges/02-ckad-challenge.md](challenges/02-ckad-challenge.md) | 4/4 | serviceaccount, deployments, kubectl-create, kubectl-set, command-vs-args, resources, requests, limits, qos, guaranteed, evictions, node-pressure, limitrange, pvc, persistentvolumeclaim, volumes, emptyDir, volumeName, storageclass, multi-container, adapter, kubectl-edit, jsonpath |
+
+Fastest commands across all exams and challenges: [exams/CHEATSHEET.md](exams/CHEATSHEET.md). Solutions inside exam and challenge files are collapsed, so a file can be re-attempted without spoilers.
 
 ## Topic index
 
-Lab numbers unless marked with E, which means an exam.
+Lab numbers unless marked with E for an exam or C for a challenge.
 
 | Topic | Labs |
 |-------|------|
 | Pods and manifests | 00, 01, E01, E02, E06, E07 |
-| Labels, selectors, annotations | 02, 16, E01, E02, E05, E06 |
+| Labels, selectors, annotations | 02, 16, E01, E02, E05, E06, C01 |
 | Namespaces | 02, E01 |
-| Deployments, rollouts, rollbacks | 00, 03, 14, 16, E05 |
+| Deployments, rollouts, rollbacks | 00, 03, 14, 16, E05, C01, C02 |
 | Autoscaling (HPA) | 00, E05 |
 | Deployment strategies (canary, blue/green) | 16 |
 | StatefulSets and headless Services | 13 |
-| Services and exposure | 00, 03, 05, 13, 14, 15, 16, E04, E06 |
+| Services and exposure | 00, 03, 05, 13, 14, 15, 16, E04, E06, C01 |
 | Ingress and HTTP routing | 15 |
 | NetworkPolicies and Pod to Pod traffic | E06 |
 | Jobs and CronJobs | 04, E05 |
 | Logging | 00, 05, 14, E03, E04 |
-| Multi-container and sidecars | 00, 05, 12, 13, 14, E02, E03, E07 |
+| Multi-container patterns (sidecar, adapter, ambassador) | 00, 05, 12, 13, 14, E02, E03, E07, C02 |
 | Pod networking (localhost, Pod DNS) | E03, E06 |
 | Init containers | 00, 13 |
 | Probes | 00, 06, 13, 16, E04 |
-| Monitoring and metrics-server | 00, 06, 07, 13, E04 |
-| Resources, requests, limits | 00, 07, 12, E02 |
+| Monitoring and metrics-server | 00, 06, 07, 13, E04, C01 |
+| Resources, requests, limits | 00, 07, 12, E02, C02 |
+| QoS classes and eviction | 07, C02 |
+| Container command and args | 07, E01, E03, C02 |
 | Security contexts | 08, E02 |
-| Persistent volumes and PVCs | 00, 09, 13, E07 |
-| StorageClasses and dynamic provisioning | 13 |
-| Ephemeral volumes | 12, E03 |
+| Persistent volumes and PVCs | 00, 09, 13, E07, C02 |
+| StorageClasses and dynamic provisioning | 09, 13, C02 |
+| Ephemeral volumes | 12, E03, C02 |
 | hostPath volumes | E07 |
-| ConfigMaps and Secrets | 00, 10, 13, 14, 17, E02, E03 |
-| ServiceAccounts and RBAC | 11, 13, 18, E02 |
+| ConfigMaps and Secrets | 00, 10, 13, 14, 17, E02, E03, C01 |
+| ServiceAccounts and RBAC | 11, 13, 18, E02, C02 |
 | API access control (authn, authz, admission) | 18 |
 | kubeconfig and contexts | 18 |
 | CRDs and custom resources | 17 |
 | API discovery (api-resources, explain) | 01, 17, E01, E02, E07 |
-| Imperative kubectl and dry-run | E01, E02, E05, E06 |
-| Updating live objects (set, patch, edit, replace) | 03, 16, 17, E01, E02, E03, E04, E05, E06 |
-| JSONPath and output formats | 10, 12, 13, 14, 15, 16, 17, E01, E05, E06 |
+| Imperative kubectl and dry-run | E01, E02, E05, E06, C01, C02 |
+| Updating live objects (set, patch, edit, replace) | 03, 16, 17, E01, E02, E03, E04, E05, E06, C01, C02 |
+| JSONPath and output formats | 10, 12, 13, 14, 15, 16, 17, E01, E05, E06, C01, C02 |
 | Helm charts, templates, values | 14 |
-| Troubleshooting (describe, events, endpoints) | 06, 14, 15, E04, E06 |
+| Troubleshooting (describe, events, endpoints) | 06, 14, 15, E04, E06, C01 |
 | Cluster operations (drain, cordon, scale) | 13 |
 | Kubernetes Dashboard and port-forward | 13, 17 |
 | Docker image build | 14, 19 |
