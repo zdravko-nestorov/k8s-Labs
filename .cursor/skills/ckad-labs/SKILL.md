@@ -11,17 +11,20 @@ The user's lab notes in this workspace are the main knowledge base. Lead with th
 
 - Labs: `labs/NN-*.md` (course labs with worked instructions, `00-` is the first).
 - Exams: `exams/NN-*.md` (CKAD practice exams: task, my solution, official solution).
-- Cheat sheet: `exams/CHEATSHEET.md` (fastest command per task type, across all exams).
+- Challenges: `challenges/NN-*.md` (lab challenges with no official solution: task, my solution, review against the notes).
+- Cheat sheet: `exams/CHEATSHEET.md` (fastest command per task type, across all exams and challenges).
 - Index: `CATALOG.md` in the workspace root.
 
 Exam files carry the official answers, so they are the best source for fast imperative commands. Their solutions sit in collapsed `<details>` blocks, which grep still reads.
+
+Challenge files carry no official answer. Their review blocks are judgments made from `labs/` and `exams/`, so treat them as second-hand. When a challenge and an exam disagree, the exam wins.
 
 ## Two modes
 
 | Mode | Trigger | Action |
 |------|---------|--------|
 | **Solve** (default) | A Kubernetes task, question, or lab to do | Answer from the notes with exact commands |
-| **Ingest** | The user says to create or save a lab or exam file | Write a new numbered file and update `CATALOG.md` |
+| **Ingest** | The user says to create or save a lab, exam, or challenge file | Write a new numbered file and update `CATALOG.md` |
 
 Practice tasks the user solves in chat are **not** saved. Create a file only when the user asks.
 
@@ -29,11 +32,11 @@ Practice tasks the user solves in chat are **not** saved. Create a file only whe
 
 ### Find the knowledge
 
-1. Read `CATALOG.md` to pick candidate files by topic. It has a labs table, an exams table, and a topic index.
-2. Grep `labs/` and `exams/` for task keywords (for example `probe`, `PVC`, `emptyDir`, `securityContext`).
+1. Read `CATALOG.md` to pick candidate files by topic. It has a labs table, an exams table, a challenges table, and a topic index.
+2. Grep `labs/`, `exams/`, and `challenges/` for task keywords (for example `probe`, `PVC`, `emptyDir`, `securityContext`).
 3. Read only the matching files, usually 1 to 3. Stop when they cover the task.
 
-Never read everything into context. If `CATALOG.md` looks stale, glob `labs/*.md` and `exams/*.md` instead.
+Never read everything into context. If `CATALOG.md` looks stale, glob `labs/*.md`, `exams/*.md`, and `challenges/*.md` instead.
 
 For exam-style or timed tasks, check `exams/CHEATSHEET.md` first, then the exam files. Those hold the official one-line answers.
 
@@ -58,7 +61,7 @@ For exam-style or timed tasks, check `exams/CHEATSHEET.md` first, then the exam 
 From: labs/NN-file.md (Step N)
 ```
 
-For an exam file, cite the task: `From: exams/01-core-concepts.md (Task 4)`.
+For an exam or challenge file, cite the task: `From: exams/01-core-concepts.md (Task 4)`.
 
 ## Ingest mode
 
@@ -68,9 +71,9 @@ Read `ingest.md` in this skill folder and follow its checklist. That file owns t
 
 ## Conventions
 
-- Two folders: `labs/` for course labs, `exams/` for practice exams. No deeper nesting.
+- Three folders: `labs/` for course labs, `exams/` for practice exams, `challenges/` for lab challenges with no answer key. No deeper nesting.
 - Each folder has its own number series. Numbers follow the order the user pastes content, not the course portal order.
-- Labs are organised by step. Exams are organised by task, with my solution and the official solution side by side.
+- Labs are organised by step. Exams and challenges are organised by task. An exam puts my solution next to the official one. A challenge has no official one, so it puts my solution next to a review written from the notes.
 - `Topics:` drives search. Use existing tag names when they fit.
 - Update this skill only when a convention changes. New files change `CATALOG.md`, not this file.
 
