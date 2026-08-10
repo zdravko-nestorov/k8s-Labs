@@ -151,6 +151,12 @@ After an exam file, fold its fastest commands into `exams/CHEATSHEET.md`.
 - Replace an existing entry when the new exam shows a faster way. Keep one command per job.
 - Add any new no-flag field to the table there.
 - Add the exam to the "Exams covered" table.
+- New section? Two edits go with it. Add a row to the Contents table at the top, in the same order
+  as the sections, and put `<sup>[↑ contents](#contents)</sup>` on the line directly below the new
+  `##` heading, with no blank line between. Every section except Contents has one.
+- Never put the arrow inside the heading text. Anchors are built from the heading, lowercased,
+  spaces to hyphens, other punctuation dropped, so `## Pods ↑` becomes `#pods-` and the Contents
+  row breaks. `## Jobs and CronJobs` is `#jobs-and-cronjobs`. Renaming a heading breaks its row too.
 
 ## 5. Rules for all content
 
