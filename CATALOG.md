@@ -43,6 +43,8 @@ Lab numbers follow the order the labs were added. Multi-step labs keep all steps
 | 03 | Multi-Container Pods | [exams/03-multi-container-pods.md](exams/03-multi-container-pods.md) | 3 | multi-container, sidecar, emptyDir, volumes, volumeMounts, readOnly, logging, tail, pod-networking, localhost, dns, configmap, configMapKeyRef, postStart, lifecycle, kubectl-replace, kubectl-logs |
 | 04 | Observability | [exams/04-observability.md](exams/04-observability.md) | 5 | probes, livenessProbe, readinessProbe, httpGet, troubleshooting, endpoints, services, nodeport, kubectl-logs, label-selector, kubectl-exec, kubectl-cp, kubectl-top, metrics-server, kubectl-edit, kubectl-describe |
 | 05 | Pod Design | [exams/05-pod-design.md](exams/05-pod-design.md) | 6 | deployments, replicas, scale, set-image, rollout-history, change-cause, annotations, labels, label-selector, set-based-selector, hpa, autoscale, cronjob, schedule, jsonpath, sort-by, custom-columns, kubectl-create |
+| 06 | Services & Networking | [exams/06-services-and-networking.md](exams/06-services-and-networking.md) | 5 | services, clusterip, nodeport, target-port, endpoints, kubectl-expose, kubectl-create-service, set-selector, label-selector, troubleshooting, networkpolicy, podselector, pod-networking, pods, restartPolicy, kubectl-run, kubectl-patch, kubectl-edit |
+| 07 | State Persistence | [exams/07-state-persistence.md](exams/07-state-persistence.md) | 2 | persistentvolume, persistentvolumeclaim, pv, pvc, storageclass, hostpath, accessmodes, capacity, binding, volumes, volumeMounts, multi-container, cluster-scoped, kubectl-explain, kubectl-apply |
 
 Fastest commands across all exams: [exams/CHEATSHEET.md](exams/CHEATSHEET.md). Solutions inside exam files are collapsed, so a file can be re-attempted without spoilers.
 
@@ -52,38 +54,40 @@ Lab numbers unless marked with E, which means an exam.
 
 | Topic | Labs |
 |-------|------|
-| Pods and manifests | 00, 01, E01, E02 |
-| Labels, selectors, annotations | 02, 16, E01, E02, E05 |
+| Pods and manifests | 00, 01, E01, E02, E06, E07 |
+| Labels, selectors, annotations | 02, 16, E01, E02, E05, E06 |
 | Namespaces | 02, E01 |
 | Deployments, rollouts, rollbacks | 00, 03, 14, 16, E05 |
 | Autoscaling (HPA) | 00, E05 |
 | Deployment strategies (canary, blue/green) | 16 |
 | StatefulSets and headless Services | 13 |
-| Services and exposure | 00, 03, 05, 13, 14, 15, 16, E04 |
+| Services and exposure | 00, 03, 05, 13, 14, 15, 16, E04, E06 |
 | Ingress and HTTP routing | 15 |
+| NetworkPolicies and Pod to Pod traffic | E06 |
 | Jobs and CronJobs | 04, E05 |
 | Logging | 00, 05, 14, E03, E04 |
-| Multi-container and sidecars | 00, 05, 12, 13, 14, E02, E03 |
-| Pod networking (localhost, Pod DNS) | E03 |
+| Multi-container and sidecars | 00, 05, 12, 13, 14, E02, E03, E07 |
+| Pod networking (localhost, Pod DNS) | E03, E06 |
 | Init containers | 00, 13 |
 | Probes | 00, 06, 13, 16, E04 |
 | Monitoring and metrics-server | 00, 06, 07, 13, E04 |
 | Resources, requests, limits | 00, 07, 12, E02 |
 | Security contexts | 08, E02 |
-| Persistent volumes and PVCs | 00, 09, 13 |
+| Persistent volumes and PVCs | 00, 09, 13, E07 |
 | StorageClasses and dynamic provisioning | 13 |
 | Ephemeral volumes | 12, E03 |
+| hostPath volumes | E07 |
 | ConfigMaps and Secrets | 00, 10, 13, 14, 17, E02, E03 |
 | ServiceAccounts and RBAC | 11, 13, 18, E02 |
 | API access control (authn, authz, admission) | 18 |
 | kubeconfig and contexts | 18 |
 | CRDs and custom resources | 17 |
-| API discovery (api-resources, explain) | 01, 17, E01, E02 |
-| Imperative kubectl and dry-run | E01, E02, E05 |
-| Updating live objects (set, patch, edit, replace) | 03, 16, 17, E01, E02, E03, E04, E05 |
-| JSONPath and output formats | 10, 12, 13, 14, 15, 16, 17, E01, E05 |
+| API discovery (api-resources, explain) | 01, 17, E01, E02, E07 |
+| Imperative kubectl and dry-run | E01, E02, E05, E06 |
+| Updating live objects (set, patch, edit, replace) | 03, 16, 17, E01, E02, E03, E04, E05, E06 |
+| JSONPath and output formats | 10, 12, 13, 14, 15, 16, 17, E01, E05, E06 |
 | Helm charts, templates, values | 14 |
-| Troubleshooting (describe, events, endpoints) | 06, 14, 15, E04 |
+| Troubleshooting (describe, events, endpoints) | 06, 14, 15, E04, E06 |
 | Cluster operations (drain, cordon, scale) | 13 |
 | Kubernetes Dashboard and port-forward | 13, 17 |
 | Docker image build | 14, 19 |
